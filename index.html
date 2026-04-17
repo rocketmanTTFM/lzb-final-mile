@@ -217,7 +217,7 @@
       <div class="scope-card">
         <span class="num">3</span>
         <h4>Commitment from La-Z-Boy</h4>
-        <p>Firm flat truck rates for 12 months. Dedicated capacity guarantees available for carriers who commit. Weekly performance reporting and feedback, transparent DFS fuel mechanism, accessorial pay on every qualifying event. Phased rollout aligned to Z-Dock launch schedule.</p>
+        <p>Firm All-In Truck Rates for 12 months. Dedicated capacity guarantees available for carriers who commit. Weekly performance reporting and feedback, transparent DFS fuel mechanism, accessorial pay on every qualifying event. Phased rollout aligned to Z-Dock launch schedule.</p>
       </div>
     </div>
   </div>
@@ -243,7 +243,7 @@
     <div class="card">
       <h3>Program Snapshot</h3>
       <div class="stats">
-        <div class="stat"><div class="v">150 mi</div><div class="l">Flat truck rate zone (driving)</div></div>
+        <div class="stat"><div class="v">150 mi</div><div class="l">All-In Truck Rate zone (one-way driving)</div></div>
         <div class="stat"><div class="v">2-man</div><div class="l">White-glove standard</div></div>
         <div class="stat"><div class="v">Weekly</div><div class="l">Performance reporting</div></div>
         <div class="stat"><div class="v">36</div><div class="l">Z-Dock markets</div></div>
@@ -265,15 +265,15 @@
   <div class="rate-inner">
     <div class="rate-hdr">
       <div class="tag">Rate Structure · Carrier-Facing Program Rules</div>
-      <h2>One flat truck rate. A smarter fuel supplement. <span class="em">Drive more, earn more.</span></h2>
+      <h2>One All-In Truck Rate. A smarter fuel supplement. <span class="em">Drive more, earn more.</span></h2>
       <p class="rate-sub">La-Z-Boy has engineered a carrier-friendly rate structure designed to remove rate creep, protect carriers against diesel volatility, and reward long-mile days with fair compensation &mdash; not penalize them.</p>
     </div>
 
     <div class="rate-grid">
       <div class="rate-card">
         <div class="pillbig">01</div>
-        <h3>Flat Truck Rate</h3>
-        <p class="lead">A single flat daily rate per truck covering <strong>any stop within 150 driving miles</strong> of the Z-Dock. One number per market. No zones, no tiers, no per-stop or per-mile surcharges.</p>
+        <h3>All-In Truck Rate</h3>
+        <p class="lead">A single all-in daily rate per truck covering <strong>any stop within 150 one-way driving miles</strong> of the Z-Dock. One number per market. No zones, no tiers, no per-stop or per-mile surcharges.</p>
         <ul class="chk">
           <li>Dispatch + 2-man white-glove team</li>
           <li>Standard equipment (26' box / liftgate)</li>
@@ -290,7 +290,7 @@
         <p class="lead">A <strong>mileage-based supplement</strong> that pays carriers more on long-mile days &mdash; indexed weekly to DOE diesel. Replaces the traditional percentage-of-rate FSC. Directly aligns compensation with actual fuel and wear.</p>
         <div class="formula">
           <div>DFS / mile = <span class="m">( DOE weekly diesel &divide; 8 MPG )</span> &times; <span class="m">1.5</span></div>
-          <div>Daily DFS = <span class="m">max( 0, daily miles &minus; 75 )</span> &times; DFS/mi</div>
+          <div>Daily DFS = <span class="m">max( 0, one-way miles from Z-Dock &minus; 75 )</span> &times; DFS/mi</div>
           <div style="font-size:12px;color:var(--muted);margin-top:6px">Floor $10/day &middot; Ceiling $200/day</div>
         </div>
         <div class="params">
@@ -315,9 +315,9 @@
           <input type="range" id="sl-diesel" min="2.50" max="6.50" step="0.05" value="4.00">
           <div class="tick"><span>$2.50</span><span>$4.50</span><span>$6.50</span></div>
 
-          <label style="margin-top:16px">Daily miles driven (one truck) <b id="lab-miles">110</b> mi</label>
-          <input type="range" id="sl-miles" min="40" max="200" step="5" value="110">
-          <div class="tick"><span>40 mi</span><span>120 mi</span><span>200 mi</span></div>
+          <label style="margin-top:16px">One-way miles from Z-Dock to farthest stop <b id="lab-miles">100</b> mi</label>
+          <input type="range" id="sl-miles" min="25" max="200" step="5" value="100">
+          <div class="tick"><span>25 mi</span><span>100 mi</span><span>200 mi</span></div>
         </div>
         <div class="calc-out">
           <div class="out">
@@ -325,8 +325,8 @@
             <div class="v" id="out-pm">$0.75</div>
           </div>
           <div class="out">
-            <div class="l">Extra miles beyond 75</div>
-            <div class="v" id="out-extra">35</div>
+            <div class="l">One-way miles beyond 75</div>
+            <div class="v" id="out-extra">25</div>
           </div>
           <div class="out big">
             <div class="l">DAILY SUPPLEMENT PAID</div>
@@ -345,7 +345,7 @@
       <h3 style="margin:0 0 12px">Why carriers win with this structure</h3>
       <div class="why-grid">
         <div class="why"><b>Earn more on long days.</b> Unlike % FSC, you're paid directly for the miles you actually drive.</div>
-        <div class="why"><b>Firm rate, protected risk.</b> Your flat rate is fixed for 12 months. DFS adjusts weekly with DOE &mdash; no hedge needed in your bid.</div>
+        <div class="why"><b>Firm rate, protected risk.</b> Your All-In Truck Rate is fixed for 12 months. DFS adjusts weekly with DOE &mdash; no hedge needed in your bid.</div>
         <div class="why"><b>One national mechanism.</b> Same DFS formula across all 36 markets. No market-by-market negotiation.</div>
         <div class="why"><b>Transparent &amp; auditable.</b> Manifest miles &times; published DOE rate. Nothing hidden.</div>
       </div>
@@ -382,7 +382,7 @@
     <div class="sec-hdr">
       <div class="tag">Accessorial Schedule</div>
       <h2>Fixed menu &mdash; bidders price each line</h2>
-      <p>The accessorial schedule below is standard for all markets. Carriers submit their rate for every line item in the pricing workbook; blank entries are treated as $0. Rocket monitors utilization and flags outliers. Accessorials are paid separately from the flat truck rate and the DFS.</p>
+      <p>The accessorial schedule below is standard for all markets. Carriers submit their rate for every line item in the pricing workbook; blank entries are treated as $0. Rocket monitors utilization and flags outliers. Accessorials are paid separately from the All-In Truck Rate and the DFS.</p>
     </div>
     <table class="acc-table">
       <thead><tr><th>Code</th><th>Accessorial</th><th>Unit</th></tr></thead>
@@ -640,7 +640,7 @@ loadData().catch(err => console.error(err));
     const extra = Math.max(0, miles - BASELINE_MI);
     let daily = extra * pm;
     let note = '';
-    if(daily === 0){ note = 'Day under 75 mi — no supplement required.'; }
+    if(daily === 0){ note = 'Farthest stop within 75 mi of Z-Dock — no supplement required.'; }
     else if(daily < FLOOR){ note = `Below $${FLOOR}/day floor — paid $0.`; daily = 0; }
     else if(daily > CEILING){ note = `Capped at $${CEILING}/day ceiling.`; daily = CEILING; }
     else { note = `Normal operating range — paid as calculated.`; }
