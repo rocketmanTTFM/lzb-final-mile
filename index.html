@@ -291,7 +291,7 @@
         <div class="formula">
           <div>DFS / mile = <span class="m">( DOE weekly diesel &divide; 8 MPG )</span> &times; <span class="m">1.5</span></div>
           <div>Daily DFS = <span class="m">max( 0, daily miles &minus; 75 )</span> &times; DFS/mi</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:6px">Floor $10/day &middot; Ceiling $100/day</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">Floor $10/day &middot; Ceiling $200/day</div>
         </div>
         <div class="params">
           <div><b>8 MPG</b><span>baseline</span></div>
@@ -621,7 +621,7 @@ loadData().catch(err => console.error(err));
 
 /* ========== DFS Calculator wiring ========== */
 (function(){
-  const MPG = 8, FACTOR = 1.5, BASELINE_MI = 75, FLOOR = 10, CEILING = 100;
+  const MPG = 8, FACTOR = 1.5, BASELINE_MI = 75, FLOOR = 10, CEILING = 200;
   const $diesel = document.getElementById('sl-diesel');
   const $miles = document.getElementById('sl-miles');
   const $lDiesel = document.getElementById('lab-diesel');
