@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>La-Z-Boy Ã— Rocket Shipping â€” Final Mile Network</title>
+<title>La-Z-Boy × Rocket Shipping — Final Mile Network</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <style>
   :root{
@@ -182,16 +182,16 @@
 
 <section class="hero">
   <div class="hero-inner">
-    <div class="brand-row"><span class="dot"></span>La-Z-Boy Residential Ã— Rocket Shipping Â· Confidential Bidder Materials</div>
+    <div class="brand-row"><span class="dot"></span>La-Z-Boy Residential × Rocket Shipping · Confidential Bidder Materials</div>
     <h1>La-Z-Boy <em>Final Mile</em> Network</h1>
     <p class="subtitle">
       La-Z-Boy intends to expand their network of <strong>cross-dock facilities</strong> across the United States. They are seeking reliable and reputable providers in each new market and will be targeting a phased rollout.
     </p>
     <div class="kpis">
-      <div class="kpi"><div class="v" id="kpi-total">â€”</div><div class="l">Total Z-Docks</div></div>
-      <div class="kpi"><div class="v" id="kpi-live">â€”</div><div class="l">Live Today</div></div>
-      <div class="kpi"><div class="v" id="kpi-planned">â€”</div><div class="l">Planned</div></div>
-      <div class="kpi"><div class="v" id="kpi-stops">â€”</div><div class="l">Total Stops / Week</div></div>
+      <div class="kpi"><div class="v" id="kpi-total">—</div><div class="l">Total Z-Docks</div></div>
+      <div class="kpi"><div class="v" id="kpi-live">—</div><div class="l">Live Today</div></div>
+      <div class="kpi"><div class="v" id="kpi-planned">—</div><div class="l">Planned</div></div>
+      <div class="kpi"><div class="v" id="kpi-stops">—</div><div class="l">Total Stops / Week</div></div>
     </div>
   </div>
 </section>
@@ -264,7 +264,7 @@
 <section class="rate-wrap">
   <div class="rate-inner">
     <div class="rate-hdr">
-      <div class="tag">Rate Structure Â· Carrier-Facing Program Rules</div>
+      <div class="tag">Rate Structure · Carrier-Facing Program Rules</div>
       <h2>One flat truck rate. A smarter fuel supplement. <span class="em">Drive more, earn more.</span></h2>
       <p class="rate-sub">La-Z-Boy has engineered a carrier-friendly rate structure designed to remove rate creep, protect carriers against diesel volatility, and reward long-mile days with fair compensation &mdash; not penalize them.</p>
     </div>
@@ -465,13 +465,13 @@
 </section>
 
 <footer>
-  <span>Â© 2026 Rocket Shipping Â· Orchestrating La-Z-Boy Residential Final Mile</span>
-  <span>Data source: <code>templates/z_docks.json</code> Â· Confidential bidder materials</span>
+  <span>© 2026 Rocket Shipping · Orchestrating La-Z-Boy Residential Final Mile</span>
+  <span>Data source: <code>templates/z_docks.json</code> · Confidential bidder materials</span>
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-/* La-Z-Boy Final Mile Z-Dock network â€” 36 markets.
+/* La-Z-Boy Final Mile Z-Dock network — 36 markets.
    Source: La-Z-Boy market analysis (Brian Schelstraete, 2026-04-07)
    Live vs planned status derived from Brian's confidential network maps (2026-04-07).
    Loaded by map/index.html and portal/index.html via <script src>.
@@ -560,7 +560,7 @@ async function loadData(){
   zds.forEach((z,i) => {
     const row = document.createElement('tr');
     const statusPill = `<span class="pill ${z.status}">${z.status}</span>`;
-    row.innerHTML = `<td><code>${z.id}</code></td><td>${z.name||'â€”'}${z.city?`<br><span style="color:#6b7786;font-size:12px">${z.city}, ${z.state}</span>`:''}</td><td>${statusPill}</td>`;
+    row.innerHTML = `<td><code>${z.id}</code></td><td>${z.name||'—'}${z.city?`<br><span style="color:#6b7786;font-size:12px">${z.city}, ${z.state}</span>`:''}</td><td>${statusPill}</td>`;
     tbody.appendChild(row);
 
     if(z.status === 'live') live++; else planned++;
@@ -573,11 +573,11 @@ async function loadData(){
       <div style="margin-top:8px;padding-top:6px;border-top:1px solid #eef0f3;font-size:12px;line-height:1.7">
         <div><b>Stops / Week:</b> ${Math.round(z.weekly_stops).toLocaleString()}</div>
         <div><b>Stops / Day:</b> ${Math.round(z.daily_stops).toLocaleString()}</div>
-        <div><b>Delivery Trucks / Day:</b> ${z.delivery_trucks_per_day?.toFixed(1) || 'â€”'}</div>
+        <div><b>Delivery Trucks / Day:</b> ${z.delivery_trucks_per_day?.toFixed(1) || '—'}</div>
       </div>` : '';
     marker.bindPopup(`
       <div style="min-width:200px">
-        <div style="font-weight:700;font-size:14px">${z.name} ${z.zip?`<span style="color:#6b7786;font-weight:400">Â· ${z.zip}</span>`:''}</div>
+        <div style="font-weight:700;font-size:14px">${z.name} ${z.zip?`<span style="color:#6b7786;font-weight:400">· ${z.zip}</span>`:''}</div>
         <div style="color:#6b7786;font-size:12px">${z.city||''}${z.city?', ':''}${z.state||''}</div>
         <div style="margin-top:6px"><span class="pill ${z.status}">${z.status}</span></div>
         ${currentCarrier}${notes}${demand}
@@ -640,10 +640,10 @@ loadData().catch(err => console.error(err));
     const extra = Math.max(0, miles - BASELINE_MI);
     let daily = extra * pm;
     let note = '';
-    if(daily === 0){ note = 'Day under 75 mi â€” no supplement required.'; }
-    else if(daily < FLOOR){ note = `Below $${FLOOR}/day floor â€” paid $0.`; daily = 0; }
+    if(daily === 0){ note = 'Day under 75 mi — no supplement required.'; }
+    else if(daily < FLOOR){ note = `Below $${FLOOR}/day floor — paid $0.`; daily = 0; }
     else if(daily > CEILING){ note = `Capped at $${CEILING}/day ceiling.`; daily = CEILING; }
-    else { note = `Normal operating range â€” paid as calculated.`; }
+    else { note = `Normal operating range — paid as calculated.`; }
 
     $lDiesel.textContent = fmt(diesel);
     $lMiles.textContent = miles + '';
