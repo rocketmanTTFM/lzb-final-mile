@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>La-Z-Boy Ã— Rocket Shipping â€” Final Mile Network</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style>
+  :root{
+    --lzb-navy:#0b1a2c;
+    --lzb-navy-2:#14304f;
+    --lzb-red:#9b1b30;
+    --lzb-red-glow:#c62847;
+    --ink:#0f1721;
+    --paper:#f6f7f9;
+    --muted:#6b7786;
+    --ok:#1f8a4c;
+    --warn:#d08700;
+    --planned:#6750a4;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--paper);color:var(--ink)}
+  .conf-banner{background:repeating-linear-gradient(135deg,#0b1a2c 0 12px,#14304f 12px 24px);color:#fff;text-align:center;padding:9px 16px;font-size:12px;letter-spacing:.08em;border-bottom:2px solid var(--lzb-red)}
+  .conf-banner strong{color:#ffd86b;letter-spacing:.14em;margin:0 4px}
+  .conf-banner .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ffd86b;box-shadow:0 0 8px #ffd86b;margin-right:8px;vertical-align:middle;animation:pulse 2.2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .hero{background:linear-gradient(135deg,var(--lzb-navy) 0%,var(--lzb-navy-2) 60%,var(--lzb-red) 140%);color:#fff;padding:36px 32px 28px;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;inset:-40% -10% auto auto;width:480px;height:480px;background:radial-gradient(closest-side,rgba(198,40,71,.55),transparent 70%);pointer-events:none}
+  .hero-inner{max-width:1280px;margin:0 auto;position:relative;z-index:1}
+  .brand-row{display:flex;align-items:center;gap:16px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#c9d3e0;margin-bottom:14px}
+  .brand-row .dot{width:6px;height:6px;border-radius:50%;background:var(--lzb-red-glow);box-shadow:0 0 12px var(--lzb-red-glow)}
+  h1{margin:0 0 8px;font-size:44px;font-weight:800;letter-spacing:-.02em;line-height:1.05}
+  h1 em{font-style:normal;color:var(--lzb-red-glow)}
+  .subtitle{font-size:17px;color:#d7deea;max-width:820px;margin:0 0 22px;line-height:1.5}
+  .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:8px}
+  .kpi{background:rgba(255,255,255,.06);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 16px}
+  .kpi .v{font-size:28px;font-weight:800;letter-spacing:-.01em}
+  .kpi .l{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#b8c3d4;margin-top:2px}
+  .wrap{max-width:1280px;margin:0 auto;padding:28px 32px 48px;display:grid;grid-template-columns:1fr 360px;gap:24px}
+  @media (max-width:1000px){.wrap{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+  #map{height:640px;border-radius:16px;box-shadow:0 20px 60px -30px rgba(11,26,44,.35),0 2px 6px rgba(11,26,44,.08);overflow:hidden;border:1px solid #e4e7ec}
+  .side{display:flex;flex-direction:column;gap:16px}
+  .card{background:#fff;border:1px solid #e4e7ec;border-radius:14px;padding:18px 20px;box-shadow:0 2px 8px rgba(11,26,44,.04)}
+  .card h3{margin:0 0 10px;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .legend{display:flex;flex-direction:column;gap:8px}
+  .legend .row{display:flex;align-items:center;gap:10px;font-size:14px}
+  .legend .sw{width:14px;height:14px;border-radius:50%}
+  .sw.live{background:var(--ok)}
+  .sw.planned{background:var(--planned)}
+  .sw.radius{background:rgba(155,27,48,.2);border:1.5px dashed var(--lzb-red)}
+  .filters{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chip{border:1px solid #d4dae4;background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;user-select:none;transition:all .15s}
+  .chip.on{background:var(--lzb-navy);color:#fff;border-color:var(--lzb-navy)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat{background:var(--paper);border-radius:10px;padding:10px 12px}
+  .stat .v{font-weight:800;font-size:20px}
+  .stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  table.zd{width:100%;border-collapse:collapse;font-size:13px}
+  table.zd th,table.zd td{padding:6px 8px;text-align:left;border-bottom:1px solid #eef0f3}
+  table.zd th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:.06em}
+  .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600}
+  .pill.live{background:#e6f4ec;color:var(--ok)}
+  .pill.planned{background:#ece6f5;color:var(--planned)}
+  footer{max-width:1280px;margin:0 auto;padding:0 32px 40px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .pin{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-size:12px;font-weight:700;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);border:2px solid #fff}
+
+  /* ========== Rate Structure section ========== */
+  .rate-wrap{background:linear-gradient(180deg,#f6f7f9 0%,#fff 100%);padding:40px 32px 24px;border-top:1px solid #e4e7ec}
+  .rate-inner{max-width:1280px;margin:0 auto}
+  .rate-hdr{text-align:center;margin-bottom:28px}
+  .rate-hdr .tag{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--lzb-red);font-weight:700;margin-bottom:10px}
+  .rate-hdr h2{margin:0 0 10px;font-size:32px;font-weight:800;letter-spacing:-.02em;color:var(--lzb-navy);line-height:1.15}
+  .rate-hdr h2 .em{color:var(--lzb-red)}
+  .rate-hdr .rate-sub{max-width:720px;margin:0 auto;color:var(--muted);font-size:15px;line-height:1.55}
+
+  .rate-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:20px;margin-bottom:24px}
+  @media (max-width:920px){.rate-grid{grid-template-columns:1fr}}
+  .rate-card{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:26px 26px 24px;position:relative;box-shadow:0 2px 8px rgba(11,26,44,.04)}
+  .rate-card.featured{border:1px solid #d6ddea;background:linear-gradient(180deg,#fff 0%,#fbfbfd 100%);box-shadow:0 20px 60px -30px rgba(11,26,44,.25),0 2px 6px rgba(11,26,44,.06)}
+  .rate-card .pillbig{position:absolute;top:18px;right:20px;font-size:11px;font-weight:800;letter-spacing:.1em;color:#b8c3d4;background:#f0f3f7;padding:4px 10px;border-radius:999px}
+  .rate-card h3{margin:0 0 10px;font-size:20px;color:var(--lzb-navy);letter-spacing:-.01em}
+  .rate-card .lead{color:#2f3b4c;font-size:14.5px;line-height:1.55;margin:0 0 14px}
+  .rate-card ul.chk{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
+  .rate-card ul.chk li{font-size:13px;color:#3b4656;padding-left:20px;position:relative;line-height:1.4}
+  .rate-card ul.chk li::before{content:"";position:absolute;left:0;top:6px;width:10px;height:10px;border:2px solid var(--lzb-red);border-radius:50%;background:transparent}
+  .formula{background:#0b1a2c;color:#fff;padding:14px 16px;border-radius:10px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:14px;line-height:1.7;margin:10px 0 14px}
+  .formula .m{color:#ffd86b;font-weight:700}
+  .params{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .params > div{background:#f6f7f9;border-radius:10px;padding:10px 8px;text-align:center}
+  .params b{display:block;font-size:17px;color:var(--lzb-navy);font-weight:800}
+  .params span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+  .calc-card{background:linear-gradient(135deg,#0b1a2c 0%,#14304f 70%,#9b1b30 180%);color:#fff;border-radius:16px;padding:26px 28px;box-shadow:0 28px 80px -40px rgba(155,27,48,.5),0 2px 8px rgba(11,26,44,.2);margin-bottom:24px}
+  .calc-card h3{margin:0;font-size:20px;letter-spacing:-.01em}
+  .calc-card .muted{color:#c9d3e0 !important}
+  .calc-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:30px;margin-top:18px}
+  @media (max-width:820px){.calc-grid{grid-template-columns:1fr}}
+  .calc-grid label{display:flex;justify-content:space-between;font-size:13px;color:#c9d3e0;font-weight:600;letter-spacing:.02em;margin-bottom:6px}
+  .calc-grid label b{color:#fff;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+  .calc-grid input[type=range]{width:100%;-webkit-appearance:none;background:transparent}
+  .calc-grid input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:linear-gradient(90deg,#c62847 0%,#ffd86b 100%)}
+  .calc-grid input[type=range]::-moz-range-track{height:6px;border-radius:999px;background:linear-gradient(90deg,#c62847 0%,#ffd86b 100%)}
+  .calc-grid input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--lzb-red);margin-top:-8px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+  .calc-grid input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--lzb-red);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+  .tick{display:flex;justify-content:space-between;font-size:11px;color:#8a97aa;margin-top:4px}
+  .calc-out{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
+  .calc-out .out{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 14px}
+  .calc-out .out.big{grid-column:span 2;background:#fff;color:var(--lzb-navy);border-color:transparent;box-shadow:0 10px 30px -10px rgba(0,0,0,.4)}
+  .calc-out .out .l{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#b8c3d4;font-weight:600}
+  .calc-out .out.big .l{color:var(--lzb-red)}
+  .calc-out .out .v{font-size:24px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
+  .calc-out .out.big .v{font-size:38px;color:var(--lzb-navy);letter-spacing:-.01em}
+  .calc-out .out.big .note{font-size:12px;color:var(--muted);margin-top:4px;font-weight:500}
+
+  .why-wrap{background:#fff;border:1px solid #e4e7ec;border-radius:16px;padding:22px 26px}
+  .why-wrap h3{color:var(--lzb-navy)}
+  .why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media (max-width:820px){.why-grid{grid-template-columns:1fr 1fr}}
+  .why{font-size:13.5px;color:#3b4656;line-height:1.5;padding-left:14px;border-left:3px solid var(--lzb-red)}
+  .why b{color:var(--lzb-navy);display:block;margin-bottom:2px}
+
+  /* ========= Scope + Service sections ========= */
+  .sec{padding:40px 32px;background:#fff;border-top:1px solid #e4e7ec}
+  .sec.alt{background:var(--paper)}
+  .sec-inner{max-width:1280px;margin:0 auto}
+  .sec-hdr{text-align:center;margin-bottom:22px}
+  .sec-hdr .tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--lzb-red);font-weight:700;margin-bottom:8px}
+  .sec-hdr h2{margin:0 0 8px;font-size:28px;font-weight:800;letter-spacing:-.02em;color:var(--lzb-navy);line-height:1.2}
+  .sec-hdr p{max-width:760px;margin:0 auto;color:var(--muted);font-size:14.5px;line-height:1.55}
+
+  .scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media (max-width:900px){.scope-grid{grid-template-columns:1fr}}
+  .scope-card{background:#fff;border:1px solid #e4e7ec;border-radius:14px;padding:22px}
+  .scope-card .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:var(--lzb-navy);color:#fff;font-weight:800;font-size:14px;margin-bottom:10px}
+  .scope-card h4{margin:0 0 8px;font-size:16px;color:var(--lzb-navy);letter-spacing:-.01em}
+  .scope-card p{margin:0;font-size:13.5px;color:#3b4656;line-height:1.55}
+
+  .sla-table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(11,26,44,.04);border:1px solid #e4e7ec}
+  .sla-table th,.sla-table td{padding:12px 16px;text-align:left;border-bottom:1px solid #eef0f3;font-size:14px}
+  .sla-table th{background:var(--lzb-navy);color:#fff;font-size:12px;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+  .sla-table td.target{font-weight:700;color:var(--lzb-navy);white-space:nowrap}
+  .sla-table tr:last-child td{border-bottom:0}
+
+  .acc-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e4e7ec;border-radius:14px;overflow:hidden}
+  .acc-table th,.acc-table td{padding:10px 14px;text-align:left;border-bottom:1px solid #eef0f3;font-size:13.5px}
+  .acc-table th{background:#f6f7f9;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+  .acc-table td.code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--lzb-red);font-weight:700;width:70px}
+  .acc-table td.unit{color:var(--muted);font-size:12px;white-space:nowrap}
+
+  .timeline{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:18px}
+  @media (max-width:900px){.timeline{grid-template-columns:repeat(2,1fr)}}
+  .tl-step{background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:14px;position:relative}
+  .tl-step .step-num{position:absolute;top:-10px;left:14px;background:var(--lzb-red);color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.06em}
+  .tl-step h5{margin:8px 0 4px;font-size:13.5px;color:var(--lzb-navy);letter-spacing:-.01em}
+  .tl-step p{margin:0;font-size:12px;color:var(--muted);line-height:1.45}
+
+  .cta-wrap{background:linear-gradient(135deg,var(--lzb-navy) 0%,var(--lzb-navy-2) 60%,var(--lzb-red) 160%);color:#fff;padding:40px 32px;text-align:center}
+  .cta-inner{max-width:860px;margin:0 auto}
+  .cta-wrap h2{margin:0 0 10px;font-size:28px;letter-spacing:-.02em}
+  .cta-wrap h2 em{font-style:normal;color:#ffd86b}
+  .cta-wrap p{margin:0 0 18px;color:#d7deea;font-size:15px;line-height:1.55}
+  .cta-btn{display:inline-block;background:#fff;color:var(--lzb-navy);font-weight:800;font-size:15px;padding:14px 26px;border-radius:12px;text-decoration:none;letter-spacing:.01em;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);margin:4px}
+  .cta-btn.ghost{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(4px)}
+  .cta-contact{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;margin-top:22px;font-size:13px;color:#c9d3e0}
+  .cta-contact span b{color:#fff;display:block;font-size:14px;font-weight:700}
+
+  .print-tip{background:#fcf1dd;border:1px solid #f0d29a;color:#8a5a00;padding:10px 14px;border-radius:10px;font-size:12.5px;text-align:center;margin:14px auto 0;max-width:760px}
+  @media print{
+    .conf-banner, .filters, .calc-card, .cta-btn, .print-tip{display:none !important}
+    body{background:#fff}
+    .sec,.rate-wrap,.why-wrap,.cta-wrap{padding:14px 0 !important;break-inside:avoid}
+    #map{height:360px !important}
+  }
+</style>
+</head>
+<body>
+
+<div class="conf-banner">
+  <span class="dot"></span>
+  <strong>CONFIDENTIAL</strong> &middot; Prepared for invited carrier partners only &middot; Do not forward, distribute, or reproduce without written authorization from Rocket Shipping
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="brand-row"><span class="dot"></span>La-Z-Boy Residential Ã— Rocket Shipping Â· Confidential Bidder Materials</div>
+    <h1>La-Z-Boy <em>Final Mile</em> Network</h1>
+    <p class="subtitle">
+      La-Z-Boy intends to expand their network of <strong>cross-dock facilities</strong> across the United States. They are seeking reliable and reputable providers in each new market and will be targeting a phased rollout.
+    </p>
+    <div class="kpis">
+      <div class="kpi"><div class="v" id="kpi-total">â€”</div><div class="l">Total Z-Docks</div></div>
+      <div class="kpi"><div class="v" id="kpi-live">â€”</div><div class="l">Live Today</div></div>
+      <div class="kpi"><div class="v" id="kpi-planned">â€”</div><div class="l">Planned</div></div>
+      <div class="kpi"><div class="v" id="kpi-stops">â€”</div><div class="l">Total Stops / Week</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt">
+  <div class="sec-inner">
+    <div class="sec-hdr">
+      <div class="tag">Program Overview</div>
+      <h2>What we're building &mdash; and what we're looking for</h2>
+      <p>La-Z-Boy Residential is standardizing final-mile delivery across a 36-market Z-Dock network. Rocket Shipping is managing carrier selection, performance measurement, and rate administration on La-Z-Boy's behalf. This page is a summary of the program and the bid we're bringing to market.</p>
+    </div>
+    <div class="scope-grid">
+      <div class="scope-card">
+        <span class="num">1</span>
+        <h4>Scope</h4>
+        <p>White-glove residential home delivery from each Z-Dock direct to consumer. Any stop within <strong>150 driving miles</strong> of the Z-Dock, 2-man team, in-home placement, basic assembly, debris removal. All 36 markets in one program, market-by-market award.</p>
+      </div>
+      <div class="scope-card">
+        <span class="num">2</span>
+        <h4>Partner we're seeking</h4>
+        <p>Reliable, reputable regional and national carriers with home-delivery experience in big-&amp;-bulky or furniture. 2-man teams, background-checked drivers, branded or uniformed crews, TMS/tracking integration, and a history of hitting 95%+ on-time in their current book.</p>
+      </div>
+      <div class="scope-card">
+        <span class="num">3</span>
+        <h4>Commitment from La-Z-Boy</h4>
+        <p>Firm flat truck rates for 12 months. Dedicated capacity guarantees available for carriers who commit. Weekly performance reporting and feedback, transparent DFS fuel mechanism, accessorial pay on every qualifying event. Phased rollout aligned to Z-Dock launch schedule.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div id="map" role="region" aria-label="La-Z-Boy Z-Dock network map"></div>
+  <aside class="side">
+    <div class="card">
+      <h3>Network Legend</h3>
+      <div class="legend">
+        <div class="row"><span class="sw live"></span> Live Z-Dock</div>
+        <div class="row"><span class="sw planned"></span> Planned Z-Dock</div>
+        <div class="row"><span class="sw radius"></span> ~150-mile delivery radius <span style="color:var(--muted);font-size:11px">(air-mile approximation)</span></div>
+      </div>
+      <div class="filters" id="filters">
+        <button class="chip on" data-f="all">All</button>
+        <button class="chip" data-f="live">Live</button>
+        <button class="chip" data-f="planned">Planned</button>
+        <button class="chip" data-f="radii">Toggle Radii</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Program Snapshot</h3>
+      <div class="stats">
+        <div class="stat"><div class="v">150 mi</div><div class="l">Flat truck rate zone (driving)</div></div>
+        <div class="stat"><div class="v">2-man</div><div class="l">White-glove standard</div></div>
+        <div class="stat"><div class="v">Weekly</div><div class="l">Performance reporting</div></div>
+        <div class="stat"><div class="v">36</div><div class="l">Z-Dock markets</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Z-Dock Index</h3>
+      <div style="max-height:320px;overflow:auto">
+        <table class="zd" id="zd-table">
+          <thead><tr><th>ID</th><th>Market</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<section class="rate-wrap">
+  <div class="rate-inner">
+    <div class="rate-hdr">
+      <div class="tag">Rate Structure Â· Carrier-Facing Program Rules</div>
+      <h2>One flat truck rate. A smarter fuel supplement. <span class="em">Drive more, earn more.</span></h2>
+      <p class="rate-sub">La-Z-Boy has engineered a carrier-friendly rate structure designed to remove rate creep, protect carriers against diesel volatility, and reward long-mile days with fair compensation &mdash; not penalize them.</p>
+    </div>
+
+    <div class="rate-grid">
+      <div class="rate-card">
+        <div class="pillbig">01</div>
+        <h3>Flat Truck Rate</h3>
+        <p class="lead">A single flat daily rate per truck covering <strong>any stop within 150 driving miles</strong> of the Z-Dock. One number per market. No zones, no tiers, no per-stop or per-mile surcharges.</p>
+        <ul class="chk">
+          <li>Dispatch + 2-man white-glove team</li>
+          <li>Standard equipment (26' box / liftgate)</li>
+          <li>In-home placement, basic assembly, debris removal</li>
+          <li>All stops within the day's manifest</li>
+          <li>Firm for 12 months from go-live</li>
+          <li>Fuel handled separately via the DFS &rarr;</li>
+        </ul>
+      </div>
+
+      <div class="rate-card featured">
+        <div class="pillbig">02</div>
+        <h3>Distance &amp; Fuel Supplement (DFS)</h3>
+        <p class="lead">A <strong>mileage-based supplement</strong> that pays carriers more on long-mile days &mdash; indexed weekly to DOE diesel. Replaces the traditional percentage-of-rate FSC. Directly aligns compensation with actual fuel and wear.</p>
+        <div class="formula">
+          <div>DFS / mile = <span class="m">( DOE weekly diesel &divide; 8 MPG )</span> &times; <span class="m">1.5</span></div>
+          <div>Daily DFS = <span class="m">max( 0, daily miles &minus; 75 )</span> &times; DFS/mi</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">Floor $10/day &middot; Ceiling $100/day</div>
+        </div>
+        <div class="params">
+          <div><b>8 MPG</b><span>baseline</span></div>
+          <div><b>1.5&times;</b><span>fuel factor</span></div>
+          <div><b>75 mi</b><span>daily threshold</span></div>
+          <div><b>DOE wk</b><span>diesel index</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-card">
+      <div class="calc-hdr">
+        <div>
+          <h3>Try it &mdash; Live DFS Calculator</h3>
+          <p class="muted" style="margin:4px 0 0;font-size:13px">Move the sliders to see how the supplement scales with fuel price and route length.</p>
+        </div>
+      </div>
+      <div class="calc-grid">
+        <div>
+          <label>DOE weekly diesel price <b id="lab-diesel">$4.00</b> / gal</label>
+          <input type="range" id="sl-diesel" min="2.50" max="6.50" step="0.05" value="4.00">
+          <div class="tick"><span>$2.50</span><span>$4.50</span><span>$6.50</span></div>
+
+          <label style="margin-top:16px">Daily miles driven (one truck) <b id="lab-miles">110</b> mi</label>
+          <input type="range" id="sl-miles" min="40" max="200" step="5" value="110">
+          <div class="tick"><span>40 mi</span><span>120 mi</span><span>200 mi</span></div>
+        </div>
+        <div class="calc-out">
+          <div class="out">
+            <div class="l">DFS per mile</div>
+            <div class="v" id="out-pm">$0.75</div>
+          </div>
+          <div class="out">
+            <div class="l">Extra miles beyond 75</div>
+            <div class="v" id="out-extra">35</div>
+          </div>
+          <div class="out big">
+            <div class="l">DAILY SUPPLEMENT PAID</div>
+            <div class="v" id="out-daily">$26.25</div>
+            <div class="note" id="out-note"></div>
+          </div>
+          <div class="out">
+            <div class="l">5-day weekly supplement</div>
+            <div class="v" id="out-week">$131.25</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="why-wrap">
+      <h3 style="margin:0 0 12px">Why carriers win with this structure</h3>
+      <div class="why-grid">
+        <div class="why"><b>Earn more on long days.</b> Unlike % FSC, you're paid directly for the miles you actually drive.</div>
+        <div class="why"><b>Firm rate, protected risk.</b> Your flat rate is fixed for 12 months. DFS adjusts weekly with DOE &mdash; no hedge needed in your bid.</div>
+        <div class="why"><b>One national mechanism.</b> Same DFS formula across all 36 markets. No market-by-market negotiation.</div>
+        <div class="why"><b>Transparent &amp; auditable.</b> Manifest miles &times; published DOE rate. Nothing hidden.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="sec-inner">
+    <div class="sec-hdr">
+      <div class="tag">Service Level Requirements</div>
+      <h2>Performance carriers commit to &mdash; weekly measurement</h2>
+      <p>Each awarded market is measured weekly in a Rocket-operated performance portal. All awarded carriers receive their own dashboard. Lane-level performance is reviewed monthly. Below-target performance triggers a 30-day corrective action plan; two consecutive months below target market-wide triggers volume reallocation.</p>
+    </div>
+    <table class="sla-table">
+      <thead>
+        <tr><th>KPI</th><th>Target</th><th>Measurement</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>On-time delivery (within appointment window)</td><td class="target">&ge; 98.0%</td><td>Weekly, by lane</td></tr>
+        <tr><td>First-attempt delivery success</td><td class="target">&ge; 95.0%</td><td>Weekly</td></tr>
+        <tr><td>Concealed + visible damage rate</td><td class="target">&le; 1.0%</td><td>Weekly</td></tr>
+        <tr><td>Customer NPS (post-delivery survey)</td><td class="target">&ge; 70</td><td>Monthly</td></tr>
+        <tr><td>Customer contact attempt rate (day prior)</td><td class="target">100%</td><td>Continuous</td></tr>
+        <tr><td>Communication compliance (Rocket load ID in all comms)</td><td class="target">100%</td><td>Continuous</td></tr>
+        <tr><td>Reason-code coverage on late deliveries</td><td class="target">100% with detail</td><td>Continuous</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="sec alt">
+  <div class="sec-inner">
+    <div class="sec-hdr">
+      <div class="tag">Accessorial Schedule</div>
+      <h2>Fixed menu &mdash; bidders price each line</h2>
+      <p>The accessorial schedule below is standard for all markets. Carriers submit their rate for every line item in the pricing workbook; blank entries are treated as $0. Rocket monitors utilization and flags outliers. Accessorials are paid separately from the flat truck rate and the DFS.</p>
+    </div>
+    <table class="acc-table">
+      <thead><tr><th>Code</th><th>Accessorial</th><th>Unit</th></tr></thead>
+      <tbody>
+        <tr><td class="code">A01</td><td>Flight of stairs beyond first</td><td class="unit">per flight</td></tr>
+        <tr><td class="code">A02</td><td>Long carry (&gt;75 ft from truck)</td><td class="unit">per event</td></tr>
+        <tr><td class="code">A03</td><td>Haul-away of old furniture</td><td class="unit">per piece</td></tr>
+        <tr><td class="code">A04</td><td>Uncrate / unbox at delivery</td><td class="unit">per piece</td></tr>
+        <tr><td class="code">A05</td><td>Re-assembly beyond standard (recliner motors, sectional)</td><td class="unit">per piece</td></tr>
+        <tr><td class="code">A06</td><td>Customer reschedule &mdash; same week</td><td class="unit">per event</td></tr>
+        <tr><td class="code">A07</td><td>Customer reschedule &mdash; new week</td><td class="unit">per event</td></tr>
+        <tr><td class="code">A08</td><td>Refused at door / return to Z-Dock</td><td class="unit">per stop</td></tr>
+        <tr><td class="code">A09</td><td>Wait time beyond 15 min at delivery</td><td class="unit">per 15 min</td></tr>
+        <tr><td class="code">A10</td><td>Weekend / Sunday delivery (pre-scheduled)</td><td class="unit">per truck day</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="sec-inner">
+    <div class="sec-hdr">
+      <div class="tag">Timeline &amp; Process</div>
+      <h2>From interest today to first dispatch</h2>
+      <p>The RFP process is short and deliberate. Dates on individual steps are confirmed in the formal RFP release.</p>
+    </div>
+    <div class="timeline">
+      <div class="tl-step">
+        <span class="step-num">STEP 1</span>
+        <h5>Express Interest</h5>
+        <p>Reply to the invitation email to be added to the formal RFP distribution list.</p>
+      </div>
+      <div class="tl-step">
+        <span class="step-num">STEP 2</span>
+        <h5>RFP Release</h5>
+        <p>Full RFP, pricing workbook, and qualification questionnaire issued. Markets, service levels, and rate rules documented in detail.</p>
+      </div>
+      <div class="tl-step">
+        <span class="step-num">STEP 3</span>
+        <h5>Q&amp;A Window</h5>
+        <p>10 business days for written questions via a single email inbox. All answers are distributed to all bidders equally.</p>
+      </div>
+      <div class="tl-step">
+        <span class="step-num">STEP 4</span>
+        <h5>Bids Due</h5>
+        <p>Pricing workbook + qualification materials submitted by the due date. Any subset of the 36 markets may be bid.</p>
+      </div>
+      <div class="tl-step">
+        <span class="step-num">STEP 5</span>
+        <h5>Award</h5>
+        <p>Rocket reviews with La-Z-Boy, conducts finalist interviews as needed, and issues award notifications by market.</p>
+      </div>
+      <div class="tl-step">
+        <span class="step-num">STEP 6</span>
+        <h5>Go-Live</h5>
+        <p>Rolling activation aligned to each Z-Dock's launch schedule. Rocket onboards your team into the TMS and scorecarding portal.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-wrap">
+  <div class="cta-inner">
+    <h2>Interested? <em>Let's talk.</em></h2>
+    <p>If this program fits your operational footprint &mdash; any subset of the 36 markets &mdash; we'd like to include you in the formal RFP distribution. Reply to your invitation email, or reach out directly below.</p>
+    <div>
+      <a class="cta-btn" href="mailto:bids@gorocketshipping.com?subject=LZB%20Final%20Mile%20RFP%20%E2%80%94%20Interest%20from%20%5BCarrier%5D">Request the RFP</a>
+      <a class="cta-btn ghost" href="mailto:gabe@gorocketshipping.com?subject=LZB%20Final%20Mile%20%E2%80%94%20Question">Email Gabe Directly</a>
+    </div>
+    <div class="cta-contact">
+      <span><b>Gabe Pankonin</b>CEO &middot; Rocket Shipping</span>
+      <span><b>gabe@gorocketshipping.com</b>Direct email</span>
+      <span><b>(218) 280-5484</b>Direct line</span>
+      <span><b>bids@gorocketshipping.com</b>Bid submissions inbox</span>
+    </div>
+    <div class="print-tip" style="color:#c9d3e0;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);margin-top:22px">
+      Tip: Press <kbd style="background:#fff;color:#0b1a2c;padding:2px 6px;border-radius:4px;font-family:ui-monospace,Consolas,monospace;font-size:11px">Ctrl+P</kbd> / <kbd style="background:#fff;color:#0b1a2c;padding:2px 6px;border-radius:4px;font-family:ui-monospace,Consolas,monospace;font-size:11px">Cmd+P</kbd> to print or save this overview as a PDF for offline review.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Â© 2026 Rocket Shipping Â· Orchestrating La-Z-Boy Residential Final Mile</span>
+  <span>Data source: <code>templates/z_docks.json</code> Â· Confidential bidder materials</span>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+/* La-Z-Boy Final Mile Z-Dock network â€” 36 markets.
+   Source: La-Z-Boy market analysis (Brian Schelstraete, 2026-04-07)
+   Live vs planned status derived from Brian's confidential network maps (2026-04-07).
+   Loaded by map/index.html and portal/index.html via <script src>.
+   Edit this file to update the network; both views refresh on page reload. */
+window.__Z_DOCKS__ = {
+  "_source": "La-Z-Boy market analysis (Brian Schelstraete, 2026-04-07)",
+  "_last_updated": "2026-04-14",
+  "_count": 36,
+  "_live": 13,
+  "_planned": 23,
+  "z_docks": [
+    { "id": "ZD-01", "name": "Rochester",      "city": "Rochester",      "state": "NY", "zip": "14623", "lat": 43.084, "lon":  -77.677, "status": "live",    "weekly_stops": 148, "daily_stops": 30,  "delivery_trucks_per_day": 2.5 },
+    { "id": "ZD-02", "name": "Worcester",      "city": "Worcester",      "state": "MA", "zip": "01608", "lat": 42.263, "lon":  -71.802, "status": "live",    "weekly_stops": 335, "daily_stops": 67,  "delivery_trucks_per_day": 5.6 },
+    { "id": "ZD-03", "name": "Paterson",       "city": "Paterson",       "state": "NJ", "zip": "07501", "lat": 40.917, "lon":  -74.172, "status": "live",    "weekly_stops": 470, "daily_stops": 94,  "delivery_trucks_per_day": 7.8 },
+    { "id": "ZD-04", "name": "Lakeland",       "city": "Lakeland",       "state": "FL", "zip": "33801", "lat": 28.039, "lon":  -81.950, "status": "live",    "weekly_stops":  97, "daily_stops": 19,  "delivery_trucks_per_day": 1.6 },
+    { "id": "ZD-05", "name": "Norristown",     "city": "Norristown",     "state": "PA", "zip": "19401", "lat": 40.121, "lon":  -75.340, "status": "live",    "weekly_stops": 800, "daily_stops": 160, "delivery_trucks_per_day": 13.3 },
+    { "id": "ZD-06", "name": "Springfield",    "city": "Springfield",    "state": "VA", "zip": "22150", "lat": 38.780, "lon":  -77.187, "status": "live",    "weekly_stops": 566, "daily_stops": 113, "delivery_trucks_per_day": 9.4 },
+    { "id": "ZD-07", "name": "Portsmouth",     "city": "Portsmouth",     "state": "VA", "zip": "23701", "lat": 36.835, "lon":  -76.347, "status": "planned", "weekly_stops":  93, "daily_stops": 19,  "delivery_trucks_per_day": 1.5 },
+    { "id": "ZD-08", "name": "Durham",         "city": "Durham",         "state": "NC", "zip": "27701", "lat": 35.994, "lon":  -78.898, "status": "planned", "weekly_stops": 134, "daily_stops": 27,  "delivery_trucks_per_day": 2.2 },
+    { "id": "ZD-09", "name": "Leland",         "city": "Leland",         "state": "NC", "zip": "28451", "lat": 34.256, "lon":  -78.046, "status": "planned", "weekly_stops":  71, "daily_stops": 14,  "delivery_trucks_per_day": 1.2 },
+    { "id": "ZD-10", "name": "Pompano Beach",  "city": "Pompano Beach",  "state": "FL", "zip": "33069", "lat": 26.237, "lon":  -80.184, "status": "planned", "weekly_stops": 137, "daily_stops": 27,  "delivery_trucks_per_day": 2.3 },
+    { "id": "ZD-11", "name": "Montgomery",     "city": "Montgomery",     "state": "AL", "zip": "36117", "lat": 32.366, "lon":  -86.229, "status": "planned", "weekly_stops":  78, "daily_stops": 16,  "delivery_trucks_per_day": 1.3 },
+    { "id": "ZD-12", "name": "Huntsville",     "city": "Huntsville",     "state": "AL", "zip": "35806", "lat": 34.730, "lon":  -86.586, "status": "planned", "weekly_stops":  59, "daily_stops": 12,  "delivery_trucks_per_day": 1.0 },
+    { "id": "ZD-13", "name": "Medina",         "city": "Medina",         "state": "OH", "zip": "44256", "lat": 41.138, "lon":  -81.863, "status": "planned", "weekly_stops": 187, "daily_stops": 37,  "delivery_trucks_per_day": 3.1 },
+    { "id": "ZD-14", "name": "Rosslyn Farms",  "city": "Rosslyn Farms",  "state": "PA", "zip": "15205", "lat": 40.435, "lon":  -80.081, "status": "live",    "weekly_stops": 112, "daily_stops": 22,  "delivery_trucks_per_day": 1.9 },
+    { "id": "ZD-15", "name": "Reading",        "city": "Reading",        "state": "OH", "zip": "45215", "lat": 39.228, "lon":  -84.441, "status": "planned", "weekly_stops": 161, "daily_stops": 32,  "delivery_trucks_per_day": 2.7 },
+    { "id": "ZD-16", "name": "Lancaster",      "city": "Lancaster",      "state": "OH", "zip": "43130", "lat": 39.714, "lon":  -82.599, "status": "planned", "weekly_stops": 203, "daily_stops": 41,  "delivery_trucks_per_day": 3.4 },
+    { "id": "ZD-17", "name": "Louisville",     "city": "Louisville",     "state": "KY", "zip": "40202", "lat": 38.254, "lon":  -85.747, "status": "planned", "weekly_stops": 117, "daily_stops": 23,  "delivery_trucks_per_day": 2.0 },
+    { "id": "ZD-18", "name": "Zionsville",     "city": "Zionsville",     "state": "IN", "zip": "46077", "lat": 39.952, "lon":  -86.262, "status": "planned", "weekly_stops":  96, "daily_stops": 19,  "delivery_trucks_per_day": 1.6 },
+    { "id": "ZD-19", "name": "Kalamazoo",      "city": "Kalamazoo",      "state": "MI", "zip": "49001", "lat": 42.290, "lon":  -85.583, "status": "planned", "weekly_stops": 160, "daily_stops": 32,  "delivery_trucks_per_day": 2.7 },
+    { "id": "ZD-20", "name": "Romulus",        "city": "Romulus",        "state": "MI", "zip": "48174", "lat": 42.222, "lon":  -83.397, "status": "planned", "weekly_stops": 363, "daily_stops": 73,  "delivery_trucks_per_day": 6.1 },
+    { "id": "ZD-21", "name": "Bloomington",    "city": "Bloomington",    "state": "IL", "zip": "61701", "lat": 40.483, "lon":  -88.994, "status": "planned", "weekly_stops":  20, "daily_stops": 4,   "delivery_trucks_per_day": 0.3 },
+    { "id": "ZD-22", "name": "Hazelwood",      "city": "Hazelwood",      "state": "MO", "zip": "63042", "lat": 38.771, "lon":  -90.380, "status": "planned", "weekly_stops": 132, "daily_stops": 26,  "delivery_trucks_per_day": 2.2 },
+    { "id": "ZD-23", "name": "Olathe",         "city": "Olathe",         "state": "KS", "zip": "66061", "lat": 38.881, "lon":  -94.819, "status": "planned", "weekly_stops":  97, "daily_stops": 19,  "delivery_trucks_per_day": 1.6 },
+    { "id": "ZD-24", "name": "Bloomingdale",   "city": "Bloomingdale",   "state": "IL", "zip": "60108", "lat": 41.958, "lon":  -88.083, "status": "planned", "weekly_stops": 622, "daily_stops": 124, "delivery_trucks_per_day": 10.4 },
+    { "id": "ZD-25", "name": "Appleton",       "city": "Appleton",       "state": "WI", "zip": "54911", "lat": 44.262, "lon":  -88.415, "status": "planned", "weekly_stops":  53, "daily_stops": 11,  "delivery_trucks_per_day": 0.9 },
+    { "id": "ZD-26", "name": "Bloomington",    "city": "Bloomington",    "state": "MN", "zip": "55431", "lat": 44.834, "lon":  -93.298, "status": "planned", "weekly_stops":  82, "daily_stops": 16,  "delivery_trucks_per_day": 1.4 },
+    { "id": "ZD-27", "name": "Lafayette",      "city": "Lafayette",      "state": "LA", "zip": "70506", "lat": 30.206, "lon":  -92.029, "status": "planned", "weekly_stops":  35, "daily_stops": 7,   "delivery_trucks_per_day": 0.6 },
+    { "id": "ZD-28", "name": "Denver",         "city": "Denver",         "state": "CO", "zip": "80204", "lat": 39.735, "lon": -105.016, "status": "planned", "weekly_stops": 195, "daily_stops": 39,  "delivery_trucks_per_day": 3.2 },
+    { "id": "ZD-29", "name": "Murray",         "city": "Murray",         "state": "UT", "zip": "84107", "lat": 40.667, "lon": -111.888, "status": "live",    "weekly_stops":  90, "daily_stops": 18,  "delivery_trucks_per_day": 1.5 },
+    { "id": "ZD-30", "name": "Las Vegas",      "city": "Las Vegas",      "state": "NV", "zip": "89128", "lat": 36.217, "lon": -115.267, "status": "planned", "weekly_stops": 100, "daily_stops": 20,  "delivery_trucks_per_day": 1.7 },
+    { "id": "ZD-31", "name": "Escondido",      "city": "Escondido",      "state": "CA", "zip": "92025", "lat": 33.119, "lon": -117.086, "status": "planned", "weekly_stops": 162, "daily_stops": 32,  "delivery_trucks_per_day": 2.7 },
+    { "id": "ZD-32", "name": "West Covina",    "city": "West Covina",    "state": "CA", "zip": "91791", "lat": 34.068, "lon": -117.899, "status": "live",    "weekly_stops": 477, "daily_stops": 95,  "delivery_trucks_per_day": 7.9 },
+    { "id": "ZD-33", "name": "Kent",           "city": "Kent",           "state": "WA", "zip": "98032", "lat": 47.381, "lon": -122.233, "status": "live",    "weekly_stops": 264, "daily_stops": 53,  "delivery_trucks_per_day": 4.4 },
+    { "id": "ZD-34", "name": "Spokane Valley", "city": "Spokane Valley", "state": "WA", "zip": "99216", "lat": 47.660, "lon": -117.238, "status": "live",    "weekly_stops":  39, "daily_stops": 8,   "delivery_trucks_per_day": 0.6 },
+    { "id": "ZD-35", "name": "Reno",           "city": "Reno",           "state": "NV", "zip": "89502", "lat": 39.529, "lon": -119.813, "status": "live",    "weekly_stops":  72, "daily_stops": 14,  "delivery_trucks_per_day": 1.2 },
+    { "id": "ZD-36", "name": "Phoenix",        "city": "Phoenix",        "state": "AZ", "zip": "85040", "lat": 33.391, "lon": -112.011, "status": "live",    "weekly_stops": 426, "daily_stops": 85,  "delivery_trucks_per_day": 7.1 }
+  ]
+};
+
+</script>
+<script>
+const COLORS = { live:"#1f8a4c", planned:"#6750a4" };
+
+const map = L.map('map', { zoomControl:true, scrollWheelZoom:true }).setView([39.5, -97.5], 4);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(map);
+
+const layers = { live: L.layerGroup().addTo(map), planned: L.layerGroup().addTo(map) };
+const radiiLayer = L.layerGroup().addTo(map);
+let radiiOn = true;
+
+function pinIcon(status, label){
+  const c = COLORS[status] || "#444";
+  return L.divIcon({
+    className:'',
+    html:`<div class="pin" style="background:${c}">${label||''}</div>`,
+    iconSize:[26,26], iconAnchor:[13,13]
+  });
+}
+
+async function loadData(){
+  // Primary: z_docks.js script tag (works on file:// and web)
+  let data = window.__Z_DOCKS__;
+  // Optional override: fetch z_docks.json if running on a web server
+  if(!data){
+    try { const r = await fetch('../templates/z_docks.json'); data = await r.json(); } catch(e){}
+  }
+  const zds = (data && data.z_docks) || [];
+  let live=0, planned=0;
+  const tbody = document.querySelector('#zd-table tbody');
+
+  zds.forEach((z,i) => {
+    const row = document.createElement('tr');
+    const statusPill = `<span class="pill ${z.status}">${z.status}</span>`;
+    row.innerHTML = `<td><code>${z.id}</code></td><td>${z.name||'â€”'}${z.city?`<br><span style="color:#6b7786;font-size:12px">${z.city}, ${z.state}</span>`:''}</td><td>${statusPill}</td>`;
+    tbody.appendChild(row);
+
+    if(z.status === 'live') live++; else planned++;
+
+    if(z.lat==null || z.lon==null) return;
+    const marker = L.marker([z.lat,z.lon], { icon: pinIcon(z.status, z.id.replace(/^ZD-?/,'').slice(0,3)) });
+    const currentCarrier = z.current_carrier ? `<div style="margin-top:4px;color:#6b7786"><b>Current:</b> ${z.current_carrier}</div>` : '';
+    const notes = z.notes ? `<div style="margin-top:4px;font-style:italic;color:#6b7786">${z.notes}</div>` : '';
+    const demand = (z.weekly_stops != null) ? `
+      <div style="margin-top:8px;padding-top:6px;border-top:1px solid #eef0f3;font-size:12px;line-height:1.7">
+        <div><b>Stops / Week:</b> ${Math.round(z.weekly_stops).toLocaleString()}</div>
+        <div><b>Stops / Day:</b> ${Math.round(z.daily_stops).toLocaleString()}</div>
+        <div><b>Delivery Trucks / Day:</b> ${z.delivery_trucks_per_day?.toFixed(1) || 'â€”'}</div>
+      </div>` : '';
+    marker.bindPopup(`
+      <div style="min-width:200px">
+        <div style="font-weight:700;font-size:14px">${z.name} ${z.zip?`<span style="color:#6b7786;font-weight:400">Â· ${z.zip}</span>`:''}</div>
+        <div style="color:#6b7786;font-size:12px">${z.city||''}${z.city?', ':''}${z.state||''}</div>
+        <div style="margin-top:6px"><span class="pill ${z.status}">${z.status}</span></div>
+        ${currentCarrier}${notes}${demand}
+      </div>
+    `);
+    layers[z.status]?.addLayer(marker);
+
+    const circle = L.circle([z.lat,z.lon], {
+      radius: 150*1609.34,
+      color: '#9b1b30', weight: 1.2, opacity: .6, dashArray:'4 4',
+      fillColor:'#9b1b30', fillOpacity:.05
+    });
+    radiiLayer.addLayer(circle);
+  });
+
+  const totalStops = zds.reduce((s,z)=>s+(+z.weekly_stops||0),0);
+  document.getElementById('kpi-total').textContent = zds.length;
+  document.getElementById('kpi-live').textContent = live;
+  document.getElementById('kpi-planned').textContent = planned;
+  document.getElementById('kpi-stops').textContent = Math.round(totalStops).toLocaleString();
+
+  // Filters
+  document.getElementById('filters').addEventListener('click', (e) => {
+    const btn = e.target.closest('.chip'); if(!btn) return;
+    const f = btn.dataset.f;
+    if(f === 'radii'){
+      radiiOn = !radiiOn;
+      if(radiiOn) radiiLayer.addTo(map); else map.removeLayer(radiiLayer);
+      btn.classList.toggle('on');
+      return;
+    }
+    document.querySelectorAll('.filters .chip').forEach(c => { if(c.dataset.f !== 'radii') c.classList.remove('on'); });
+    btn.classList.add('on');
+    for(const k of Object.keys(layers)){
+      if(f === 'all' || f === k) layers[k].addTo(map); else map.removeLayer(layers[k]);
+    }
+  });
+}
+
+loadData().catch(err => console.error(err));
+
+/* ========== DFS Calculator wiring ========== */
+(function(){
+  const MPG = 8, FACTOR = 1.5, BASELINE_MI = 75, FLOOR = 10, CEILING = 100;
+  const $diesel = document.getElementById('sl-diesel');
+  const $miles = document.getElementById('sl-miles');
+  const $lDiesel = document.getElementById('lab-diesel');
+  const $lMiles = document.getElementById('lab-miles');
+  const $pm = document.getElementById('out-pm');
+  const $extra = document.getElementById('out-extra');
+  const $daily = document.getElementById('out-daily');
+  const $note = document.getElementById('out-note');
+  const $week = document.getElementById('out-week');
+
+  function fmt(n){ return '$' + n.toFixed(2); }
+  function recalc(){
+    const diesel = parseFloat($diesel.value);
+    const miles  = parseFloat($miles.value);
+    const pm = (diesel / MPG) * FACTOR;
+    const extra = Math.max(0, miles - BASELINE_MI);
+    let daily = extra * pm;
+    let note = '';
+    if(daily === 0){ note = 'Day under 75 mi â€” no supplement required.'; }
+    else if(daily < FLOOR){ note = `Below $${FLOOR}/day floor â€” paid $0.`; daily = 0; }
+    else if(daily > CEILING){ note = `Capped at $${CEILING}/day ceiling.`; daily = CEILING; }
+    else { note = `Normal operating range â€” paid as calculated.`; }
+
+    $lDiesel.textContent = fmt(diesel);
+    $lMiles.textContent = miles + '';
+    $pm.textContent = fmt(pm);
+    $extra.textContent = extra + ' mi';
+    $daily.textContent = fmt(daily);
+    $note.textContent = note;
+    $week.textContent = fmt(daily * 5);
+  }
+  $diesel.addEventListener('input', recalc);
+  $miles.addEventListener('input', recalc);
+  recalc();
+})();
+</script>
+
+</body>
+</html>
